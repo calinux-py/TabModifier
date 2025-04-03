@@ -13,7 +13,7 @@ I made it because ConnectWise didn't.
 ## Installation
 
 1. Download or clone this repository.
-2. Open Chrome and navigate to `chrome://extensions`.
+2. Open Chrome or Edge and navigate to `chrome://extensions`.
 3. Enable **Developer Mode**.
 4. Click **Load unpacked** and select the extension's folder.
 
