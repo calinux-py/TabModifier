@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Modifier",
+  "version": "1.0",
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icon.png"
+  },
+  "commands": {
+    "open_popup": {
+      "suggested_key": {
+        "default": "Alt+T"
+      },
+      "description": "Open the Tab Modifier popup"
+    }
+  }
+}

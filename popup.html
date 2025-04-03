@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    :root {
+      --bg-dark: #0f111a;
+      --bg-darker: #0a0c14;
+      --accent-primary: #4d8bf0;
+      --accent-hover: #3a7ae8;
+      --text-primary: rgba(255, 255, 255, 0.95);
+      --text-secondary: rgba(255, 255, 255, 0.65);
+      --input-bg: #1a1d28;
+      --input-border: #2a2e3d;
+      --input-focus: #2d3245;
+      --card-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+      --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --border-radius: 8px;
+    }
+    body {
+      width: 280px;
+      padding: 24px;
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @supports (font-variation-settings: normal) {
+      body { font-family: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+    }
+    .app-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .app-icon {
+      width: 32px;
+      height: 32px;
+      margin-right: 12px;
+    }
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    h3 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 20px 0;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .checkbox-container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    .checkmark {
+      position: relative;
+      height: 16px;
+      width: 16px;
+      min-width: 16px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      margin-right: 10px;
+      transition: var(--transition-fast);
+    }
+    .checkbox-container:hover .checkmark {
+      border-color: var(--accent-primary);
+    }
+    .checkbox-container input:checked ~ .checkmark {
+      background-color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 5px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .checkbox-container input:checked ~ .checkmark:after {
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      transition: var(--transition-fast);
+      box-sizing: border-box;
+      outline: none;
+      appearance: none;
+    }
+    input[type="text"] {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(77, 139, 240, 0.2);
+      background: var(--input-focus);
+    }
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2399a5b5' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 12px;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      border: none;
+      outline: none;
+    }
+    #modifyBtn {
+      background-color: var(--accent-primary);
+      color: white;
+    }
+    #modifyBtn:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    #modifyBtn:active {
+      transform: translateY(0);
+    }
+    #resetBtn {
+      background-color: transparent;
+      border: 1px solid var(--input-border);
+      color: var(--text-primary);
+    }
+    #resetBtn:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+    select option {
+      padding: 8px 16px;
+      background: var(--bg-darker);
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .input-group {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .button-group {
+      animation: fadeIn 0.3s 0.1s ease-out forwards;
+    }
+    .status-bar {
+      animation: fadeIn 0.3s 0.15s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="app-icon">
+      <img src="icons/icon32.png" alt="Tab Customizer Icon">
+    </div>
+    <div>
+      <h3>Tab Modifier</h3>
+      <div class="app-subtitle">Epic Edition</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="input-group">
+    <label class="input-label">Tab Title</label>
+    <input type="text" id="tabTitle" placeholder="Enter new tab title">
+  </div>
+  <div class="input-group">
+    <label class="input-label">Favicon Color</label>
+    <select id="faviconColor">
+      <option value="">Default favicon</option>
+      <option value="#F9C1D5" style="background-color: #F9C1D5; color: black;">Pastel Pink</option>
+      <option value="#B5EAD7" style="background-color: #B5EAD7; color: black;">Mint Green</option>
+      <option value="#C7CEEA" style="background-color: #C7CEEA; color: black;">Lavender</option>
+      <option value="#FFDAC1" style="background-color: #FFDAC1; color: black;">Peach</option>
+      <option value="#E2F0CB" style="background-color: #E2F0CB; color: black;">Pale Lime</option>
+      <option value="#FF9AA2" style="background-color: #FF9AA2; color: black;">Watermelon</option>
+      <option value="#FF2A6D" style="background-color: #FF2A6D; color: white;">Neon Pink</option>
+      <option value="#05D9E8" style="background-color: #05D9E8; color: black;">Electric Blue</option>
+      <option value="#D300C5" style="background-color: #D300C5; color: white;">Cyber Purple</option>
+      <option value="#FFEE00" style="background-color: #FFEE00; color: black;">Neon Yellow</option>
+      <option value="#00FF87" style="background-color: #00FF87; color: black;">Matrix Green</option>
+      <option value="#6B00FF" style="background-color: #6B00FF; color: white;">Ultraviolet</option>
+      <option value="#FF007F" style="background-color: #FF007F; color: white;">Hot Magenta</option>
+      <option value="#00FEFE" style="background-color: #00FEFE; color: black;">Cyan Burst</option>
+      <option value="#6B8E23" style="background-color: #6B8E23; color: white;">Olive Drab</option>
+      <option value="#556B2F" style="background-color: #556B2F; color: white;">Dark Olive</option>
+      <option value="#8B4513" style="background-color: #8B4513; color: white;">Saddle Brown</option>
+      <option value="#A0522D" style="background-color: #A0522D; color: white;">Sienna</option>
+      <option value="#4682B4" style="background-color: #4682B4; color: white;">Steel Blue</option>
+      <option value="#5F9EA0" style="background-color: #5F9EA0; color: white;">Cadet Blue</option>
+      <option value="#D2691E" style="background-color: #D2691E; color: white;">Chocolate</option>
+      <option value="#B8860B" style="background-color: #B8860B; color: white;">Dark Goldenrod</option>
+      <option value="#264653" style="background-color: #264653; color: white;">Dark Teal</option>
+      <option value="#2A9D8F" style="background-color: #2A9D8F; color: white;">Jungle Green</option>
+      <option value="#E9C46A" style="background-color: #E9C46A; color: black;">Sand Yellow</option>
+      <option value="#F4A261" style="background-color: #F4A261; color: black;">Sandy Brown</option>
+      <option value="#E76F51" style="background-color: #E76F51; color: white;">Coral</option>
+      <option value="#606C38" style="background-color: #606C38; color: white;">Moss Green</option>
+      <option value="#283618" style="background-color: #283618; color: white;">Forest Green</option>
+      <option value="#FEFAE0" style="background-color: #FEFAE0; color: black; border: 1px solid #ccc;">Ivory</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label class="checkbox-container">
+      <input type="checkbox" id="protectTab">
+      <span class="checkmark"></span>
+      Protect from closing
+    </label>
+  </div>
+  <div class="button-group">
+    <button id="modifyBtn">Apply Changes</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+  <div class="status-bar">
+    <div>Avenyx.io v1.1.0</div>
+    <div>Hotkeys: ALT+T</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
