@@ -1,7 +1,8 @@
 # Tab Modifier
 
-A Chrome & Microsoft extension that lets you modify your active tab's title and favicon color and prevent tabs from closing on accident.
+![Tab Modifier Icon](https://github.com/calinux-py/TabModifier/blob/main/icons/yeet.png?raw=true)
 
+A Chrome & Microsoft extension that lets you modify your active tab's title and favicon color and prevent tabs from closing on accident.  
 I made it because ConnectWise didn't.
 
 ## Features
@@ -13,7 +14,7 @@ I made it because ConnectWise didn't.
 ## Installation
 
 1. Download or clone this repository.
-2. Open Chrome or Edge and navigate to `chrome://extensions`.
+2. Open Chrome and navigate to `chrome://extensions`.
 3. Enable **Developer Mode**.
 4. Click **Load unpacked** and select the extension's folder.
 
