@@ -1,4 +1,4 @@
-# Tab Modifier <img src="https://github.com/calinux-py/TabModifier/blob/main/icons/icon128.png?raw=true" alt="Tab Modifier Icon" width="64" />
+# Tab Modifier <img src="https://github.com/calinux-py/TabModifier/blob/main/icons/icon128.png?raw=true" alt="Tab Modifier Icon" width="44" />
 
 
 A Chrome & Microsoft extension that lets you modify your active tab's title and favicon color and prevent tabs from closing on accident.  
