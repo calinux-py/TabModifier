@@ -1,6 +1,7 @@
 # Tab Modifier
 
 A Chrome & Microsoft extension that lets you modify your active tab's title and favicon color and prevent tabs from closing on accident.
+
 I made it because ConnectWise didn't.
 
 ## Features
