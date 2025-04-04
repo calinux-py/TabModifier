@@ -2,39 +2,79 @@ document.getElementById('modifyBtn').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0];
     const url = activeTab.url;
-    const newTitle = document.getElementById('tabTitle').value || activeTab.title;
+    let newTitle = document.getElementById('tabTitle').value || activeTab.title;
     const color = document.getElementById('faviconColor').value;
     const protect = document.getElementById('protectTab').checked;
-    chrome.storage.local.get(url, (result) => {
-      const settings = result[url] || {};
-      if (!settings.originalTitle) {
-        settings.originalTitle = activeTab.title;
-      }
-      settings.customTitle = newTitle;
-      settings.color = color;
-      settings.protect = protect;
-      chrome.storage.local.set({ [url]: settings }, () => {
-        chrome.scripting.executeScript({
-          target: { tabId: activeTab.id },
-          func: modifyTab,
-          args: [newTitle, color, protect]
-        }, () => {
-          window.close();
-        });
+    const useConnectWise = document.getElementById('connectWise').checked;
+    
+    if (useConnectWise) {
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: function() {
+          const cwElement = document.querySelector('.cw_CwTextField');
+          return cwElement ? cwElement.value : null;
+        }
+      }, (results) => {
+        if (results && results[0] && results[0].result) {
+          newTitle = results[0].result;
+        }
+        updateTab(activeTab, url, newTitle, color, protect);
       });
-    });
+    } else {
+      updateTab(activeTab, url, newTitle, color, protect);
+    }
   });
 });
 
 document.getElementById('resetBtn').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0];
-    const url = activeTab.url;
-    chrome.storage.local.remove(url, () => {
-      chrome.tabs.reload(activeTab.id);
+    chrome.storage.local.get(activeTab.url, (result) => {
+      if (result[activeTab.url]) {
+        chrome.storage.local.remove(activeTab.url, () => {
+          chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: function() {
+              location.reload();
+            }
+          }, () => {
+            window.close();
+          });
+        });
+      } else {
+        chrome.scripting.executeScript({
+          target: { tabId: activeTab.id },
+          func: function() {
+            location.reload();
+          }
+        }, () => {
+          window.close();
+        });
+      }
     });
   });
 });
+
+function updateTab(activeTab, url, newTitle, color, protect) {
+  chrome.storage.local.get(url, (result) => {
+    const settings = result[url] || {};
+    if (!settings.originalTitle) {
+      settings.originalTitle = activeTab.title;
+    }
+    settings.customTitle = newTitle;
+    settings.color = color;
+    settings.protect = protect;
+    chrome.storage.local.set({ [url]: settings }, () => {
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: modifyTab,
+        args: [newTitle, color, protect]
+      }, () => {
+        window.close();
+      });
+    });
+  });
+}
 
 function modifyTab(title, color, protect) {
   document.title = title;
