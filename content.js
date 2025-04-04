@@ -4,10 +4,23 @@
     const settings = result[url];
     if (settings && settings.customTitle) {
       modifyTab(settings.customTitle, settings.color, settings.protect);
+      
+      if (url.startsWith("https://na.myconnectwise.net/")) {
+        let attempts = 0;
+        const intervalId = setInterval(() => {
+          modifyTab(settings.customTitle, settings.color, settings.protect);
+          attempts++;
+          if (attempts >= 10) {
+            clearInterval(intervalId);
+          }
+        }, 1000);
+      }
     }
   });
+  
   function modifyTab(title, color, protect) {
     document.title = title;
+    
     if (color) {
       const canvas = document.createElement('canvas');
       canvas.width = 16;
@@ -24,6 +37,7 @@
       newLink.href = canvas.toDataURL();
       document.head.appendChild(newLink);
     }
+    
     if (protect) {
       window.onbeforeunload = function(e) {
         return "Are you sure you want to leave?";
