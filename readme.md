@@ -21,6 +21,9 @@ A Chrome & Microsoft extension that lets you modify your active tab's title and 
 ## Usage
 
 - **Open Popup:** Click the extension icon, right-click and choose "Modify Tab," or press `Alt+T`.
+- **Auto-Name ConnectWise Ticket**: You can automatically name ConnectWise ticket tabs by pressing `Alt+R`.
+- **Auto-Color Favicon**: You can automatically change the color of a favicon by pressing `Alt+C`.
+- **Open New Tab**: You can open new tabs by pressing `Alt-V`.
 - **Apply Changes:** Enter your desired tab title, select a favicon color, and toggle the protection option.
 - **Reset:** Click the "Reset" button to revert the changes.
 
