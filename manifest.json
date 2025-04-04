@@ -12,12 +12,37 @@
   "icons": {
     "48": "icon.png"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "commands": {
     "open_popup": {
       "suggested_key": {
         "default": "Alt+T"
       },
       "description": "Open the Tab Modifier popup"
+    },
+    "rename_tab": {
+      "suggested_key": {
+        "default": "Alt+R"
+      },
+      "description": "Rename tab using ConnectWise value"
+    },
+    "random_favicon": {
+      "suggested_key": {
+        "default": "Alt+C"
+      },
+      "description": "Randomize favicon color"
+    },
+    "open_in_new_tab": {
+      "suggested_key": {
+        "default": "Alt+V"
+      },
+      "description": "Open current URL in new tab"
     }
   }
 }
