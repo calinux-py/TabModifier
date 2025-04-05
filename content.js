@@ -3,24 +3,21 @@
   chrome.storage.local.get(url, (result) => {
     const settings = result[url];
     if (settings && settings.customTitle) {
-      modifyTab(settings.customTitle, settings.color, settings.protect);
-      
+      applyCustomizations(settings.customTitle, settings.color, settings.protect);
+
       if (url.startsWith("https://na.myconnectwise.net/")) {
         let attempts = 0;
         const intervalId = setInterval(() => {
-          modifyTab(settings.customTitle, settings.color, settings.protect);
+          applyCustomizations(settings.customTitle, settings.color, settings.protect);
           attempts++;
-          if (attempts >= 10) {
-            clearInterval(intervalId);
-          }
+          if (attempts >= 10) clearInterval(intervalId);
         }, 1000);
       }
     }
   });
-  
-  function modifyTab(title, color, protect) {
+
+  function applyCustomizations(title, color, protect) {
     document.title = title;
-    
     if (color) {
       const canvas = document.createElement('canvas');
       canvas.width = 16;
@@ -37,13 +34,67 @@
       newLink.href = canvas.toDataURL();
       document.head.appendChild(newLink);
     }
-    
     if (protect) {
-      window.onbeforeunload = function(e) {
+      window.onbeforeunload = function() {
         return "Are you sure you want to leave?";
       };
     } else {
       window.onbeforeunload = null;
     }
+  }
+
+  let currentHotkeys = {
+    rename_tab: "Alt+R",
+    random_favicon: "Alt+C",
+    open_in_new_tab: "Alt+V"
+  };
+
+  chrome.storage.local.get("hotkeys", (res) => {
+    if (res.hotkeys) {
+      currentHotkeys = res.hotkeys;
+    }
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.hotkeys) {
+      currentHotkeys = changes.hotkeys.newValue;
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (matchHotkey(e, currentHotkeys.rename_tab)) {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ command: "rename_tab" });
+    }
+    if (matchHotkey(e, currentHotkeys.random_favicon)) {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ command: "random_favicon" });
+    }
+    if (matchHotkey(e, currentHotkeys.open_in_new_tab)) {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ command: "open_in_new_tab" });
+    }
+  });
+
+  function matchHotkey(e, hotkey) {
+    const parts = hotkey.split("+").map(s => s.trim().toLowerCase());
+    let requiredKey = "";
+    let alt = false, ctrl = false, shift = false, meta = false;
+
+    parts.forEach(part => {
+      if (part === "alt") alt = true;
+      else if (part === "ctrl" || part === "control") ctrl = true;
+      else if (part === "shift") shift = true;
+      else if (part === "meta" || part === "cmd" || part === "command") meta = true;
+      else requiredKey = part;
+    });
+
+    return (
+      e.altKey === alt &&
+      e.ctrlKey === ctrl &&
+      e.shiftKey === shift &&
+      e.metaKey === meta &&
+      e.key.toLowerCase() === requiredKey
+    );
   }
 })();
