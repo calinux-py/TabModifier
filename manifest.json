@@ -2,7 +2,16 @@
   "manifest_version": 3,
   "name": "Tab Modifier",
   "version": "1.0",
-  "permissions": ["contextMenus", "activeTab", "scripting", "storage"],
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -25,24 +34,6 @@
         "default": "Alt+T"
       },
       "description": "Open the Tab Modifier popup"
-    },
-    "rename_tab": {
-      "suggested_key": {
-        "default": "Alt+R"
-      },
-      "description": "Rename tab using ConnectWise value"
-    },
-    "random_favicon": {
-      "suggested_key": {
-        "default": "Alt+C"
-      },
-      "description": "Randomize favicon color"
-    },
-    "open_in_new_tab": {
-      "suggested_key": {
-        "default": "Alt+V"
-      },
-      "description": "Open current URL in new tab"
     }
   }
 }
