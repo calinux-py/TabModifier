@@ -29,6 +29,31 @@
     @supports (font-variation-settings: normal) {
       body { font-family: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
     }
+    .tab-nav {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+    }
+    .tab-nav button {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .tab-nav button.active {
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--accent-primary);
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
     .app-header {
       display: flex;
       align-items: center;
@@ -179,19 +204,15 @@
     #modifyBtn:active {
       transform: translateY(0);
     }
-    #resetBtn {
+    #resetBtn, #saveHotkeysBtn {
       background-color: transparent;
       border: 1px solid var(--input-border);
       color: var(--text-primary);
     }
-    #resetBtn:hover {
+    #resetBtn:hover, #saveHotkeysBtn:hover {
       background-color: rgba(255, 255, 255, 0.05);
       border-color: var(--accent-primary);
       color: var(--accent-primary);
-    }
-    select option {
-      padding: 8px 16px;
-      background: var(--bg-darker);
     }
     .status-bar {
       display: flex;
@@ -204,14 +225,8 @@
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .input-group {
+    .input-group, .button-group, .status-bar {
       animation: fadeIn 0.3s ease-out forwards;
-    }
-    .button-group {
-      animation: fadeIn 0.3s 0.1s ease-out forwards;
-    }
-    .status-bar {
-      animation: fadeIn 0.3s 0.15s ease-out forwards;
     }
   </style>
 </head>
@@ -225,63 +240,91 @@
       <div class="app-subtitle">Epic Edition</div>
     </div>
   </div>
-  <div class="divider"></div>
-  <div class="input-group">
-    <label class="input-label">Tab Title</label>
-    <input type="text" id="tabTitle" placeholder="Enter new tab title">
+  <div class="tab-nav">
+    <button id="tabModify" class="active">Modify</button>
+    <button id="tabSettings">Settings</button>
   </div>
-  <div class="input-group">
-    <label class="input-label">Favicon Color</label>
-    <select id="faviconColor">
-      <option value="">Default favicon</option>
-      <option value="#F9C1D5" style="background-color: #F9C1D5; color: black;">Pastel Pink</option>
-      <option value="#B5EAD7" style="background-color: #B5EAD7; color: black;">Mint Green</option>
-      <option value="#C7CEEA" style="background-color: #C7CEEA; color: black;">Lavender</option>
-      <option value="#FFDAC1" style="background-color: #FFDAC1; color: black;">Peach</option>
-      <option value="#E2F0CB" style="background-color: #E2F0CB; color: black;">Pale Lime</option>
-      <option value="#FF9AA2" style="background-color: #FF9AA2; color: black;">Watermelon</option>
-      <option value="#FF2A6D" style="background-color: #FF2A6D; color: white;">Neon Pink</option>
-      <option value="#05D9E8" style="background-color: #05D9E8; color: black;">Electric Blue</option>
-      <option value="#D300C5" style="background-color: #D300C5; color: white;">Cyber Purple</option>
-      <option value="#FFEE00" style="background-color: #FFEE00; color: black;">Neon Yellow</option>
-      <option value="#00FF87" style="background-color: #00FF87; color: black;">Matrix Green</option>
-      <option value="#FF007F" style="background-color: #FF007F; color: white;">Hot Magenta</option>
-      <option value="#00FEFE" style="background-color: #00FEFE; color: black;">Cyan Burst</option>
-      <option value="#6B8E23" style="background-color: #6B8E23; color: white;">Olive Drab</option>
-      <option value="#556B2F" style="background-color: #556B2F; color: white;">Dark Olive</option>
-      <option value="#A0522D" style="background-color: #A0522D; color: white;">Sienna</option>
-      <option value="#4682B4" style="background-color: #4682B4; color: white;">Steel Blue</option>
-      <option value="#5F9EA0" style="background-color: #5F9EA0; color: white;">Cadet Blue</option>
-      <option value="#D2691E" style="background-color: #D2691E; color: white;">Chocolate</option>
-      <option value="#B8860B" style="background-color: #B8860B; color: white;">Dark Goldenrod</option>
-      <option value="#2A9D8F" style="background-color: #2A9D8F; color: white;">Jungle Green</option>
-      <option value="#E9C46A" style="background-color: #E9C46A; color: black;">Sand Yellow</option>
-      <option value="#F4A261" style="background-color: #F4A261; color: black;">Sandy Brown</option>
-      <option value="#E76F51" style="background-color: #E76F51; color: white;">Coral</option>
-      <option value="#FEFAE0" style="background-color: #FEFAE0; color: black; border: 1px solid #ccc;">Ivory</option>
-    </select>
+  <div id="modifySection" class="section active">
+    <div class="divider"></div>
+    <div class="input-group">
+      <label class="input-label">Tab Title</label>
+      <input type="text" id="tabTitle" placeholder="Enter new tab title">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Favicon Color</label>
+      <select id="faviconColor">
+        <option value="">Default favicon</option>
+        <option value="#F9C1D5" style="background-color: #F9C1D5; color: black;">Pastel Pink</option>
+        <option value="#B5EAD7" style="background-color: #B5EAD7; color: black;">Mint Green</option>
+        <option value="#C7CEEA" style="background-color: #C7CEEA; color: black;">Lavender</option>
+        <option value="#FFDAC1" style="background-color: #FFDAC1; color: black;">Peach</option>
+        <option value="#E2F0CB" style="background-color: #E2F0CB; color: black;">Pale Lime</option>
+        <option value="#FF9AA2" style="background-color: #FF9AA2; color: black;">Watermelon</option>
+        <option value="#FF2A6D" style="background-color: #FF2A6D; color: white;">Neon Pink</option>
+        <option value="#05D9E8" style="background-color: #05D9E8; color: black;">Electric Blue</option>
+        <option value="#D300C5" style="background-color: #D300C5; color: white;">Cyber Purple</option>
+        <option value="#FFEE00" style="background-color: #FFEE00; color: black;">Neon Yellow</option>
+        <option value="#00FF87" style="background-color: #00FF87; color: black;">Matrix Green</option>
+        <option value="#FF007F" style="background-color: #FF007F; color: white;">Hot Magenta</option>
+        <option value="#00FEFE" style="background-color: #00FEFE; color: black;">Cyan Burst</option>
+        <option value="#6B8E23" style="background-color: #6B8E23; color: white;">Olive Drab</option>
+        <option value="#556B2F" style="background-color: #556B2F; color: white;">Dark Olive</option>
+        <option value="#A0522D" style="background-color: #A0522D; color: white;">Sienna</option>
+        <option value="#4682B4" style="background-color: #4682B4; color: white;">Steel Blue</option>
+        <option value="#5F9EA0" style="background-color: #5F9EA0; color: white;">Cadet Blue</option>
+        <option value="#D2691E" style="background-color: #D2691E; color: white;">Chocolate</option>
+        <option value="#B8860B" style="background-color: #B8860B; color: white;">Dark Goldenrod</option>
+        <option value="#2A9D8F" style="background-color: #2A9D8F; color: white;">Jungle Green</option>
+        <option value="#E9C46A" style="background-color: #E9C46A; color: black;">Sand Yellow</option>
+        <option value="#F4A261" style="background-color: #F4A261; color: black;">Sandy Brown</option>
+        <option value="#E76F51" style="background-color: #E76F51; color: white;">Coral</option>
+        <option value="#FEFAE0" style="background-color: #FEFAE0; color: black; border: 1px solid #ccc;">Ivory</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="checkbox-container">
+        <input type="checkbox" id="protectTab">
+        <span class="checkmark"></span>
+        Protect from closing
+      </label>
+    </div>
+    <div class="input-group">
+      <label class="checkbox-container">
+        <input type="checkbox" id="connectWise">
+        <span class="checkmark"></span>
+        Auto-Name (ConnectWise)
+      </label>
+    </div>
+    <div class="button-group">
+      <button id="modifyBtn">Apply Changes</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <div class="status-bar" id="statusBar">
+      <div>Avenyx.io</div>
+      <div>v1.3.0</div>
+    </div>
   </div>
-  <div class="input-group">
-    <label class="checkbox-container">
-      <input type="checkbox" id="protectTab">
-      <span class="checkmark"></span>
-      Protect from closing
-    </label>
-  </div>
-  <div class="input-group">
-    <label class="checkbox-container">
-      <input type="checkbox" id="connectWise">
-      <span class="checkmark"></span>
-      Auto-Name (ConnectWise)
-    </label>
-  </div>
-  <div class="button-group">
-    <button id="modifyBtn">Apply Changes</button>
-    <button id="resetBtn">Reset</button>
-  </div>
-  <div class="status-bar">
-    <div>Hotkeys: ALT+T, ALT+R, ALT+C, ALT+V</div>
-    <div>Avenyx.io v1.2.0</div>
+  <div id="settingsSection" class="section">
+    <div class="divider"></div>
+    <div class="input-group">
+      <label class="input-label">Rename Tab Hotkey</label>
+      <input type="text" id="hkRename" placeholder="e.g., Alt+R">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Random Favicon Hotkey</label>
+      <input type="text" id="hkRandom" placeholder="e.g., Alt+C">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Open in New Tab Hotkey</label>
+      <input type="text" id="hkNewTab" placeholder="e.g., Alt+V">
+    </div>
+    <div class="button-group">
+      <button id="saveHotkeysBtn">Save Hotkeys</button>
+    </div>
+    <div class="status-bar">
+      <div>Avenyx.io</div>
+      <div>v1.3.0</div>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
