@@ -1,20 +1,56 @@
 (function() {
   const url = window.location.href;
-  chrome.storage.local.get(url, (result) => {
-    const settings = result[url];
-    if (settings && settings.customTitle) {
-      applyCustomizations(settings.customTitle, settings.color, settings.protect);
+  
+  function isSpecialEndpoint(url) {
+    return url.endsWith("CalendarSchedule") || 
+           url.endsWith("DispatchSchedule") || 
+           url.endsWith("ProjectBoard");
+  }
 
-      if (url.startsWith("https://na.myconnectwise.net/")) {
-        let attempts = 0;
-        const intervalId = setInterval(() => {
-          applyCustomizations(settings.customTitle, settings.color, settings.protect);
-          attempts++;
-          if (attempts >= 10) clearInterval(intervalId);
-        }, 1000);
+  function getSpecialEndpointKey(url) {
+    if (url.endsWith("CalendarSchedule")) return "CalendarSchedule";
+    if (url.endsWith("DispatchSchedule")) return "DispatchSchedule";
+    if (url.endsWith("ProjectBoard")) return "ProjectBoard";
+    return null;
+  }
+
+  const endpointKey = isSpecialEndpoint(url) ? getSpecialEndpointKey(url) : null;
+
+  if (endpointKey) {
+    chrome.storage.local.get('specialEndpointSettings', (result) => {
+      const specialSettings = result.specialEndpointSettings || {};
+      const settings = specialSettings[endpointKey];
+      
+      if (settings && settings.customTitle) {
+        applyCustomizations(settings.customTitle, settings.color, settings.protect);
+
+        if (url.startsWith("https://na.myconnectwise.net/")) {
+          let attempts = 0;
+          const intervalId = setInterval(() => {
+            applyCustomizations(settings.customTitle, settings.color, settings.protect);
+            attempts++;
+            if (attempts >= 10) clearInterval(intervalId);
+          }, 1000);
+        }
       }
-    }
-  });
+    });
+  } else {
+    chrome.storage.local.get(url, (result) => {
+      const settings = result[url];
+      if (settings && settings.customTitle) {
+        applyCustomizations(settings.customTitle, settings.color, settings.protect);
+
+        if (url.startsWith("https://na.myconnectwise.net/")) {
+          let attempts = 0;
+          const intervalId = setInterval(() => {
+            applyCustomizations(settings.customTitle, settings.color, settings.protect);
+            attempts++;
+            if (attempts >= 10) clearInterval(intervalId);
+          }, 1000);
+        }
+      }
+    });
+  }
 
   function applyCustomizations(title, color, protect) {
     document.title = title;
@@ -46,12 +82,16 @@
   let currentHotkeys = {
     rename_tab: "Alt+R",
     random_favicon: "Alt+C",
-    open_in_new_tab: "Alt+V"
+    open_in_new_tab: "Alt+V",
+    click_new_note: "Alt+B"
   };
 
   chrome.storage.local.get("hotkeys", (res) => {
     if (res.hotkeys) {
       currentHotkeys = res.hotkeys;
+      if (!currentHotkeys.click_new_note) {
+        currentHotkeys.click_new_note = "Alt+B";
+      }
     }
   });
 
@@ -73,6 +113,10 @@
     if (matchHotkey(e, currentHotkeys.open_in_new_tab)) {
       e.preventDefault();
       chrome.runtime.sendMessage({ command: "open_in_new_tab" });
+    }
+    if (matchHotkey(e, currentHotkeys.click_new_note)) {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ command: "click_new_note" });
     }
   });
 
