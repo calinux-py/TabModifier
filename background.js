@@ -13,6 +13,19 @@ function injectContentScriptAllTabs() {
   });
 }
 
+function isSpecialEndpoint(url) {
+  return url.endsWith("CalendarSchedule") || 
+         url.endsWith("DispatchSchedule") || 
+         url.endsWith("ProjectBoard");
+}
+
+function getSpecialEndpointKey(url) {
+  if (url.endsWith("CalendarSchedule")) return "CalendarSchedule";
+  if (url.endsWith("DispatchSchedule")) return "DispatchSchedule";
+  if (url.endsWith("ProjectBoard")) return "ProjectBoard";
+  return null;
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get('hotkeys', (res) => {
     if (!res.hotkeys) {
@@ -20,7 +33,20 @@ chrome.runtime.onInstalled.addListener(() => {
         hotkeys: {
           rename_tab: "Alt+R",
           random_favicon: "Alt+C",
-          open_in_new_tab: "Alt+V"
+          open_in_new_tab: "Alt+V",
+          click_new_note: "Alt+B"
+        }
+      });
+    }
+  });
+
+  chrome.storage.local.get('specialEndpointSettings', (res) => {
+    if (!res.specialEndpointSettings) {
+      chrome.storage.local.set({
+        specialEndpointSettings: {
+          CalendarSchedule: {},
+          DispatchSchedule: {},
+          ProjectBoard: {}
         }
       });
     }
@@ -81,48 +107,101 @@ function executeRandomFavicon() {
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0];
-    chrome.storage.local.get(activeTab.url, (result) => {
-      const settings = result[activeTab.url] || {};
-      if (!settings.originalTitle) {
-        settings.originalTitle = activeTab.title;
-      }
-      settings.customTitle = activeTab.title;
-      settings.color = randomColor;
-      settings.protect = settings.protect || false;
+    const url = activeTab.url;
+    const endpointKey = isSpecialEndpoint(url) ? getSpecialEndpointKey(url) : null;
 
-      chrome.storage.local.set({ [activeTab.url]: settings }, () => {
-        chrome.scripting.executeScript({
-          target: { tabId: activeTab.id },
-          func: function(title, color, protect) {
-            document.title = title;
-            if (color) {
-              const canvas = document.createElement('canvas');
-              canvas.width = 16;
-              canvas.height = 16;
-              const ctx = canvas.getContext('2d');
-              ctx.fillStyle = color;
-              ctx.beginPath();
-              ctx.arc(8, 8, 7, 0, 2 * Math.PI);
-              ctx.fill();
-              document.querySelectorAll("link[rel*='icon']").forEach(link => link.remove());
-              const newLink = document.createElement('link');
-              newLink.type = 'image/png';
-              newLink.rel = 'icon';
-              newLink.href = canvas.toDataURL();
-              document.head.appendChild(newLink);
-            }
-            if (protect) {
-              window.onbeforeunload = function(e) {
-                return "Are you sure you want to leave?";
-              };
-            } else {
-              window.onbeforeunload = null;
-            }
-          },
-          args: [activeTab.title, randomColor, settings.protect]
+    if (endpointKey) {
+      chrome.storage.local.get('specialEndpointSettings', (result) => {
+        const specialSettings = result.specialEndpointSettings || {
+          CalendarSchedule: {},
+          DispatchSchedule: {},
+          ProjectBoard: {}
+        };
+        
+        if (!specialSettings[endpointKey].originalTitle) {
+          specialSettings[endpointKey].originalTitle = activeTab.title;
+        }
+        specialSettings[endpointKey].customTitle = activeTab.title;
+        specialSettings[endpointKey].color = randomColor;
+        specialSettings[endpointKey].protect = specialSettings[endpointKey].protect || false;
+
+        chrome.storage.local.set({ specialEndpointSettings: specialSettings }, () => {
+          chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: function(title, color, protect) {
+              document.title = title;
+              if (color) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 16;
+                canvas.height = 16;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(8, 8, 7, 0, 2 * Math.PI);
+                ctx.fill();
+                document.querySelectorAll("link[rel*='icon']").forEach(link => link.remove());
+                const newLink = document.createElement('link');
+                newLink.type = 'image/png';
+                newLink.rel = 'icon';
+                newLink.href = canvas.toDataURL();
+                document.head.appendChild(newLink);
+              }
+              if (protect) {
+                window.onbeforeunload = function(e) {
+                  return "Are you sure you want to leave?";
+                };
+              } else {
+                window.onbeforeunload = null;
+              }
+            },
+            args: [activeTab.title, randomColor, specialSettings[endpointKey].protect]
+          });
         });
       });
-    });
+    } else {
+      chrome.storage.local.get(url, (result) => {
+        const settings = result[url] || {};
+        if (!settings.originalTitle) {
+          settings.originalTitle = activeTab.title;
+        }
+        settings.customTitle = activeTab.title;
+        settings.color = randomColor;
+        settings.protect = settings.protect || false;
+
+        chrome.storage.local.set({ [url]: settings }, () => {
+          chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: function(title, color, protect) {
+              document.title = title;
+              if (color) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 16;
+                canvas.height = 16;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(8, 8, 7, 0, 2 * Math.PI);
+                ctx.fill();
+                document.querySelectorAll("link[rel*='icon']").forEach(link => link.remove());
+                const newLink = document.createElement('link');
+                newLink.type = 'image/png';
+                newLink.rel = 'icon';
+                newLink.href = canvas.toDataURL();
+                document.head.appendChild(newLink);
+              }
+              if (protect) {
+                window.onbeforeunload = function(e) {
+                  return "Are you sure you want to leave?";
+                };
+              } else {
+                window.onbeforeunload = null;
+              }
+            },
+            args: [activeTab.title, randomColor, settings.protect]
+          });
+        });
+      });
+    }
   });
 }
 
@@ -142,6 +221,20 @@ chrome.commands.onCommand.addListener((command) => {
     executeRandomFavicon();
   } else if (command === "open_in_new_tab") {
     executeOpenInNewTab();
+  } else if (command === "click_new_note") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: function() {
+          const buttons = Array.from(document.querySelectorAll('div.CwButton-innerLightActive'));
+          const newNoteBtn = buttons.find(btn => btn.textContent.trim() === "New Note");
+          if (newNoteBtn) {
+            newNoteBtn.click();
+          }
+        }
+      });
+    });
   }
 });
 
@@ -152,5 +245,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     executeRandomFavicon();
   } else if (message.command === "open_in_new_tab") {
     executeOpenInNewTab();
+  } else if (message.command === "click_new_note") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: function() {
+          const buttons = Array.from(document.querySelectorAll('div.CwButton-innerLightActive'));
+          const newNoteBtn = buttons.find(btn => btn.textContent.trim() === "New Note");
+          if (newNoteBtn) {
+            newNoteBtn.click();
+          }
+        }
+      });
+    });
   }
 });
